@@ -38,7 +38,7 @@ const (
 	DeprecatedBareMetalMachineFinalizer = "hetznerbaremetalmachine.infrastructure.cluster.x-k8s.io"
 
 	// BareMetalHostNamePrefix is a prefix for all hostNames of bare metal servers.
-	BareMetalHostNamePrefix = "bm-"
+	BareMetalHostNamePrefix = ""
 )
 
 var errUnknownSuffix = errors.New("unknown suffix")

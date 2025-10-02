@@ -56,7 +56,7 @@ import (
 
 const (
 	// providerIDPrefix is a prefix for ProviderID.
-	providerIDPrefix = "hcloud://"
+	providerIDPrefix = "hrobot://"
 
 	// requeueAfter gives the duration of time until the next reconciliation should be performed.
 	requeueAfter = time.Second * 30
