@@ -1822,6 +1822,15 @@ func (s *Service) actionProvisioned(ctx context.Context) actionResult {
 	}
 	sshClient := s.scope.SSHClientFactory.NewClient(in)
 
+	// Update hardware details after initial provisioning gracefully
+	hardwareDetails, err := getHardwareDetails(sshClient)
+	if err != nil {
+		record.Warnf(s.scope.HetznerBareMetalHost, "UpdateHardwareDetailsFailed",
+			"Updating hardware details failed with: %s", err.Error())
+	} else {
+		s.scope.HetznerBareMetalHost.Spec.Status.HardwareDetails = &hardwareDetails
+	}
+
 	if rebootDesired {
 		if isRebooted {
 			// Reboot has been done already. Check whether it has been successful
