@@ -1960,6 +1960,27 @@ func (s *Service) actionProvisioned(ctx context.Context) actionResult {
 		host.Spec.Status.Rebooted = false
 		host.Spec.Status.ExternalIDs.RebootAnnotationNodeBootID = ""
 		host.Spec.Status.ExternalIDs.RebootAnnotationSince.Time = time.Time{}
+
+		// Update hardware details after initial provisioning gracefully
+		if s.scope.SSHAfterInstallImage {
+			creds := sshclient.CredentialsFromSecret(s.scope.OSSSHSecret, host.Spec.Status.SSHSpec.SecretRef)
+
+			in := sshclient.Input{
+				PrivateKey: creds.PrivateKey,
+				Port:       host.Spec.Status.SSHSpec.PortAfterInstallImage,
+				IP:         host.Spec.Status.GetIPAddress(),
+			}
+
+			sshClient := s.scope.SSHClientFactory.NewClient(in)
+			hardwareDetails, err := getHardwareDetails(sshClient)
+			if err != nil {
+				record.Warnf(s.scope.HetznerBareMetalHost, "UpdateHardwareDetailsFailed",
+					"Updating hardware details failed with: %s", err.Error())
+			} else {
+				s.scope.HetznerBareMetalHost.Spec.Status.HardwareDetails = &hardwareDetails
+			}
+		}
+
 		return actionComplete{} // Stays in Provisioned (final state)
 	}
 
